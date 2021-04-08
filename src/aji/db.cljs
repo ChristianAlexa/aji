@@ -1,4 +1,4 @@
 (ns aji.db)
 
 (def default-db
-  {:name "re-frame"})
+  {:name "aji"})
