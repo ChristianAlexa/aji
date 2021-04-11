@@ -1,5 +1,6 @@
 (ns board.board
   (:require [re-frame.core :as rf]
+            [board.utils :as utils]
             [clojure.string :as str]))
 
 ;; -----------------------------------------------------------------------------
@@ -7,68 +8,106 @@
 (rf/reg-event-db
  ::set-board-size
  (fn [db [_ board-size]]
-   (assoc db :board-size board-size)))
+   (-> db
+       (assoc :board-size board-size)
+       (assoc :active-board (:blank-board db))
+       (assoc :curr-turn "TURN_BLACK"))))
+
+(rf/reg-event-db
+ ::play-move
+ (fn [db [_id coord-name]]
+   (let [curr-turn (:curr-turn db)
+         next-turn (if (= "TURN_WHITE" curr-turn) "TURN_BLACK" "TURN_WHITE")
+         stone-color (if (= "TURN_WHITE" curr-turn) "BLACK" "WHITE")
+         curr-intersection (get-in db [:active-board coord-name])
+         new-intersection (assoc curr-intersection :stone stone-color)]
+     (-> db
+         (assoc-in [:active-board coord-name] new-intersection)
+         (assoc :curr-turn next-turn)))))
 
 ;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS
 (rf/reg-sub
- ::get-starting-board
- (fn [db [_ _]]
-   (:board db)))
-
-(rf/reg-sub
- ::get-board-size
+ ::board-size
  (fn [db [_ _]]
    (:board-size db)))
 
 (rf/reg-sub
- ::get-all-rows
- (fn [db [_ board-size]]
-   (map (fn [row-num]
-          (->> db
-               :board
-               keys
-               (filter #(str/includes? % (str row-num "-")))
-               (select-keys (:board db))
-               (sort-by first)
-               (take board-size)))
-        (range 1 (inc board-size)))))
+ ::intersection
+ (fn [db [_ coord-name]]
+   (get-in db [:active-board coord-name])))
+
+(rf/reg-sub
+ ::active-board
+ :<- [::board-size]
+ (fn [board-size [_ _]]
+   (utils/create-board board-size)))
+
+(rf/reg-sub
+ ::curr-turn
+ (fn [db [_ _]]
+   (:curr-turn db)))
+
+(rf/reg-sub
+ ::curr-turn-formatted
+ :<- [::curr-turn]
+ (fn [curr-turn [_ _]]
+   (if (str/includes? curr-turn "WHITE")
+     "White"
+     "Black")))
 
 ;; -----------------------------------------------------------------------------
 ;; VIEWS
 (defn Intersection
   "Intersection renders a single point, the smallest atomic unit on the board."
   [coord-name]
-  [:li
-   {:style {:border "1px solid black"
-            :backgroundColor "#F9D17C"
-            :height "25px"
-            :width "25px"
-            :text-align "center"
-            :display "inline-block"}} coord-name])
+  (let [intersection @(rf/subscribe [::intersection coord-name])
+        position (:position intersection)
+        empty-img (case position
+                    "POSITION_CORNER_TOP_LEFT" {:path "img/CORNER_INTERSECTION.png"}
+                    "POSITION_CORNER_TOP_RIGHT" {:path "img/CORNER_INTERSECTION.png" :rotate "rotate(90deg)"}
+                    "POSITION_CORNER_BOTTOM_LEFT" {:path "img/CORNER_INTERSECTION.png" :rotate "rotate(-90deg)"}
+                    "POSITION_CORNER_BOTTOM_RIGHT" {:path "img/CORNER_INTERSECTION.png" :rotate "rotate(180deg)"}
+                    "POSITION_SIDE_TOP" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(0deg)"}
+                    "POSITION_SIDE_BOTTOM" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(180deg)"}
+                    "POSITION_SIDE_LEFT" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(-90deg)"}
+                    "POSITION_SIDE_RIGHT" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(90deg)"}
+                    "POSITION_MIDDLE" {:path "img/MIDDLE_INTERSECTION.png"}
+                    {:path "img/MIDDLE_INTERSECTION.png"})
+        black-stone-img "img/BLACK_STONE.png"
+        white-stone-img "img/WHITE_STONE.png"]
+    [:li
+     {:style {:display "inline-block"}}
+     [:img {:src (case (:stone intersection)
+                   "WHITE" black-stone-img
+                   "BLACK" white-stone-img
+                   (:path empty-img))
+            :style (when (nil? (:stone intersection)) {:transform (:rotate empty-img)})
+            :on-click #(rf/dispatch [::play-move coord-name])}]]))
 
 (defn Row
   "Row renders a row of intersections."
-  [row]
-  [:li {:key (random-uuid)}
-   (map (fn [r]
-          (let [coord-name (first r)]
-            [:<> {:key (random-uuid)}
-             [Intersection coord-name]])) row)])
+  [idx row]
+  [:li {:key idx
+        :style {:font-size 0}} (map (fn [coord-name] [Intersection coord-name]) row)])
 
 (defn ButtonGroup
+  "ButtonGroup renders a group of buttons to change board size."
   []
   [:<>
-   [:button {:on-click #(rf/dispatch [::set-board-size 3])} "3x3"]
    [:button {:on-click #(rf/dispatch [::set-board-size 9])} "9x9"]
+   [:button {:on-click #(rf/dispatch [::set-board-size 13])} "13x13"]
    [:button {:on-click #(rf/dispatch [::set-board-size 19])} "19x19"]])
 
 (defn Board
-  "Board renders the game board (i.e. all the rows of intersections)."
+  "Board renders the game board."
   []
-  (let [board-size @(rf/subscribe [::get-board-size])
-        all-rows @(rf/subscribe [::get-all-rows board-size])]
+  (let [board-size @(rf/subscribe [::board-size])
+        new-board @(rf/subscribe [::active-board])
+        curr-turn-formatted @(rf/subscribe [::curr-turn-formatted])]
     [:div {:id "board"}
      [ButtonGroup]
-     [:ul {:id "allRows" :style {:listStyleType "none"}}
-      (map #(Row %) all-rows)]]))
+     [:p "Board size: " board-size]
+     [:p curr-turn-formatted " to play!"]
+     [:ul {:id "allRows" :style {:listStyleType "none" :white-space "no wrap"}}
+      (map-indexed Row new-board)]]))
