@@ -18,7 +18,7 @@
  (fn [db [_id coord-name]]
    (let [curr-turn (:curr-turn db)
          next-turn (if (= "TURN_WHITE" curr-turn) "TURN_BLACK" "TURN_WHITE")
-         stone-color (if (= "TURN_WHITE" curr-turn) "BLACK" "WHITE")
+         stone-color (if (= "TURN_WHITE" curr-turn) "WHITE" "BLACK")
          curr-intersection (get-in db [:active-board coord-name])
          new-intersection (assoc curr-intersection :stone stone-color)]
      (-> db
@@ -79,8 +79,8 @@
     [:li
      {:style {:display "inline-block"}}
      [:img {:src (case (:stone intersection)
-                   "WHITE" black-stone-img
-                   "BLACK" white-stone-img
+                   "WHITE" white-stone-img
+                   "BLACK" black-stone-img
                    (:path empty-img))
             :style (when (nil? (:stone intersection)) {:transform (:rotate empty-img)})
             :on-click #(rf/dispatch [::play-move coord-name])}]]))

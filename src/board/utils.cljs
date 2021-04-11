@@ -1,6 +1,6 @@
 (ns board.utils)
 
-(defn vec2d
+(defn- vec2d
   "vec2d returns a 2d vector."
   [num-cols num-rows f]
   (mapv (fn [row-idx]
