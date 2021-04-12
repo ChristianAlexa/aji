@@ -4,7 +4,7 @@
   {:name "aji"
    :board-size 19
    :curr-turn "TURN_BLACK"
-   :active-board {"1-A" {:stone nil  :liberties 4 :position "POSITION_CORNER_TOP_LEFT"}
+   :active-board {"1-A" {:stone nil  :liberties 4 :position "POSITION_CORNER_TOP_LEFT" :neighbors {:north nil :east "1-B" :south "2-A" :west nil}}
                   "1-B" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}
                   "1-C" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}
                   "1-D" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}
@@ -402,7 +402,7 @@
                   "19-R" {:stone nil  :liberties 4 :position "POSITION_SIDE_BOTTOM"}
                   "19-S" {:stone nil  :liberties 4 :position "POSITION_SIDE_BOTTOM"}
                   "19-T" {:stone nil  :liberties 4 :position "POSITION_CORNER_BOTTOM_RIGHT"}}
-   :blank-board {"1-A" {:stone nil  :liberties 4 :position "POSITION_CORNER_TOP_LEFT"}
+   :blank-board {"1-A" {:stone nil  :liberties 4 :position "POSITION_CORNER_TOP_LEFT" :neighbors {:north nil :east "1-B" :south "2-A" :west nil}}
                  "1-B" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}
                  "1-C" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}
                  "1-D" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}
