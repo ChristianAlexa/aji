@@ -20,10 +20,18 @@
          next-turn (if (= "TURN_WHITE" curr-turn) "TURN_BLACK" "TURN_WHITE")
          stone-color (if (= "TURN_WHITE" curr-turn) "WHITE" "BLACK")
          curr-intersection (get-in db [:active-board coord-name])
-         new-intersection (assoc curr-intersection :stone stone-color)]
+         new-intersection (assoc curr-intersection :stone stone-color)
+         neighbors-coords (vals (:neighbors curr-intersection))
+         neighbors-vals (map #(get-in db [:active-board %]) neighbors-coords)
+         neighbors-vals-dec-libs (map #(assoc % :liberties (dec (:liberties %))) neighbors-vals)]
      (-> db
+         (assoc-in [:active-board (nth neighbors-coords 0)] (nth neighbors-vals-dec-libs 0))
+         (assoc-in [:active-board (nth neighbors-coords 1)] (nth neighbors-vals-dec-libs 1))
+         (assoc-in [:active-board (nth neighbors-coords 2)] (nth neighbors-vals-dec-libs 2))
+         (assoc-in [:active-board (nth neighbors-coords 3)] (nth neighbors-vals-dec-libs 3))
          (assoc-in [:active-board coord-name] new-intersection)
          (assoc :curr-turn next-turn)))))
+
 
 ;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS
@@ -57,7 +65,7 @@
      "Black")))
 
 ;; Set the incoming liberty count for a newly placed stone.
-;; Example: 
+;; Example:
 ;; You place stone (S) on a middle intersection which is surrounded by 3 neighboring stones.
 ;; Stone S has a liberty count of 1 because 4 minus 3.
 (rf/reg-sub
@@ -68,11 +76,18 @@
          neighbors-with-stones (map #(:stone %) neighbors-vals)]
      (count (filter identity neighbors-with-stones)))))
 
+;; TODO: wrap in goog debug
+(rf/reg-sub
+ ::num-liberties-at-coord
+ (fn [db [_ coord-name]]
+   (-> db
+       (get-in [:active-board coord-name])
+       :liberties)))
 ;; -----------------------------------------------------------------------------
 ;; VIEWS
 (defn Intersection
   "Intersection renders a single point, the smallest atomic unit on the board."
-  [coord-name]
+  [idx coord-name]
   (let [intersection @(rf/subscribe [::intersection coord-name])
         position (:position intersection)
         empty-img (case position
@@ -88,20 +103,22 @@
                     {:path "img/MIDDLE_INTERSECTION.png"})
         black-stone-img "img/BLACK_STONE.png"
         white-stone-img "img/WHITE_STONE.png"]
-    [:li
-     {:style {:display "inline-block"}}
-     [:img {:src (case (:stone intersection)
-                   "WHITE" white-stone-img
-                   "BLACK" black-stone-img
-                   (:path empty-img))
+    [:div
+     {:key (str idx "-" coord-name)
+      :style {:display "inline-block"}}
+     [:img {:src (cond
+                   (and (= "WHITE" (:stone intersection)) (pos? (:liberties intersection))) white-stone-img
+                   (and (= "BLACK" (:stone intersection)) (pos? (:liberties intersection))) black-stone-img
+                   :else (:path empty-img))
             :style (when (nil? (:stone intersection)) {:transform (:rotate empty-img)})
             :on-click #(rf/dispatch [::play-move coord-name])}]]))
 
 (defn Row
   "Row renders a row of intersections."
   [idx row]
-  [:li {:key idx
-        :style {:font-size 0}} (map (fn [coord-name] [Intersection coord-name]) row)])
+  [:li {:key (str idx "-")
+        :style {:font-size 0}}
+   (map-indexed (fn [i coord-name] [Intersection i coord-name]) row)])
 
 (defn ButtonGroup
   "ButtonGroup renders a group of buttons to change board size."
@@ -117,10 +134,13 @@
   (let [board-size @(rf/subscribe [::board-size])
         new-board @(rf/subscribe [::active-board])
         curr-turn-formatted @(rf/subscribe [::curr-turn-formatted])
-        num-top-corner-neighbors @(rf/subscribe [::num-neighbors-with-stone "1-A"])]
-    [:div {:id "board"}
+        num-top-corner-neighbors @(rf/subscribe [::num-neighbors-with-stone "1-A"])
+        oneA-liberties @(rf/subscribe [::num-liberties-at-coord "1-A"])]
+    [:div {:id "board"
+           :style {:font-size "30px"}}
      [ButtonGroup]
      [:p "1-A neighbor count: " num-top-corner-neighbors]
+     [:p "1-A liberty count: " oneA-liberties]
      [:p "Board size: " board-size]
      [:p curr-turn-formatted " to play!"]
      [:ul {:id "allRows" :style {:listStyleType "none" :white-space "no wrap"}}
