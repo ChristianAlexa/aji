@@ -74,7 +74,7 @@
    (let [neighbors-coords  (vals (get-in db [:active-board coord-name :neighbors]))
          neighbors-vals (map #(get-in db [:active-board %]) neighbors-coords)
          neighbors-with-stones (map #(:stone %) neighbors-vals)]
-     (count (filter identity neighbors-with-stones)))))
+     (count (remove nil? neighbors-with-stones)))))
 
 ;; TODO: wrap in goog debug
 (rf/reg-sub
@@ -83,6 +83,21 @@
    (-> db
        (get-in [:active-board coord-name])
        :liberties)))
+
+(defn position->img
+  [position]
+  (case position
+    "POSITION_CORNER_TOP_LEFT" {:path "img/CORNER_INTERSECTION.png"}
+    "POSITION_CORNER_TOP_RIGHT" {:path "img/CORNER_INTERSECTION.png" :rotate "rotate(90deg)"}
+    "POSITION_CORNER_BOTTOM_LEFT" {:path "img/CORNER_INTERSECTION.png" :rotate "rotate(-90deg)"}
+    "POSITION_CORNER_BOTTOM_RIGHT" {:path "img/CORNER_INTERSECTION.png" :rotate "rotate(180deg)"}
+    "POSITION_SIDE_TOP" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(0deg)"}
+    "POSITION_SIDE_BOTTOM" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(180deg)"}
+    "POSITION_SIDE_LEFT" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(-90deg)"}
+    "POSITION_SIDE_RIGHT" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(90deg)"}
+    "POSITION_MIDDLE" {:path "img/MIDDLE_INTERSECTION.png"}
+    {:path "img/MIDDLE_INTERSECTION.png"}))
+
 ;; -----------------------------------------------------------------------------
 ;; VIEWS
 (defn Intersection
@@ -90,21 +105,11 @@
   [idx coord-name]
   (let [intersection @(rf/subscribe [::intersection coord-name])
         position (:position intersection)
-        empty-img (case position
-                    "POSITION_CORNER_TOP_LEFT" {:path "img/CORNER_INTERSECTION.png"}
-                    "POSITION_CORNER_TOP_RIGHT" {:path "img/CORNER_INTERSECTION.png" :rotate "rotate(90deg)"}
-                    "POSITION_CORNER_BOTTOM_LEFT" {:path "img/CORNER_INTERSECTION.png" :rotate "rotate(-90deg)"}
-                    "POSITION_CORNER_BOTTOM_RIGHT" {:path "img/CORNER_INTERSECTION.png" :rotate "rotate(180deg)"}
-                    "POSITION_SIDE_TOP" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(0deg)"}
-                    "POSITION_SIDE_BOTTOM" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(180deg)"}
-                    "POSITION_SIDE_LEFT" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(-90deg)"}
-                    "POSITION_SIDE_RIGHT" {:path "img/SIDE_INTERSECTION.png" :rotate "rotate(90deg)"}
-                    "POSITION_MIDDLE" {:path "img/MIDDLE_INTERSECTION.png"}
-                    {:path "img/MIDDLE_INTERSECTION.png"})
+        empty-img (position->img position)
         black-stone-img "img/BLACK_STONE.png"
         white-stone-img "img/WHITE_STONE.png"]
     [:div
-     {:key (str idx "-" coord-name)
+     {:key coord-name
       :style {:display "inline-block"}}
      [:img {:src (cond
                    (and (= "WHITE" (:stone intersection)) (pos? (:liberties intersection))) white-stone-img
@@ -116,9 +121,9 @@
 (defn Row
   "Row renders a row of intersections."
   [idx row]
-  [:li {:key (str idx "-")
+  [:li {:key idx
         :style {:font-size 0}}
-   (map-indexed (fn [i coord-name] [Intersection i coord-name]) row)])
+   (doall (map-indexed Intersection row))])
 
 (defn ButtonGroup
   "ButtonGroup renders a group of buttons to change board size."
@@ -126,7 +131,7 @@
   [:<>
   ;;  [:button {:on-click #(rf/dispatch [::set-board-size 9])} "9x9"]
   ;;  [:button {:on-click #(rf/dispatch [::set-board-size 13])} "13x13"]
-   [:button {:on-click #(rf/dispatch [::set-board-size 19])} "19x19"]])
+   [:button.button.is-info {:on-click #(rf/dispatch [::set-board-size 19])} "19x19"]])
 
 (defn Board
   "Board renders the game board."
@@ -138,10 +143,12 @@
         oneA-liberties @(rf/subscribe [::num-liberties-at-coord "1-A"])]
     [:div {:id "board"
            :style {:font-size "30px"}}
+
+     [:ul {:id "allRows" :style {:listStyleType "none" :white-space "no wrap"}}
+      (doall (map-indexed Row new-board))]
+
      [ButtonGroup]
      [:p "1-A neighbor count: " num-top-corner-neighbors]
      [:p "1-A liberty count: " oneA-liberties]
      [:p "Board size: " board-size]
-     [:p curr-turn-formatted " to play!"]
-     [:ul {:id "allRows" :style {:listStyleType "none" :white-space "no wrap"}}
-      (map-indexed Row new-board)]]))
+     [:p curr-turn-formatted " to play!"]]))

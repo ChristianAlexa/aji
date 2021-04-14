@@ -1,3 +1,5 @@
+;; TODO put vec2d in this ns
+;; (ns board.aji.utils.vectors) 
 (ns board.utils)
 
 (defn- vec2d
