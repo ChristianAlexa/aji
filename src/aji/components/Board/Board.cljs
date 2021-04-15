@@ -1,7 +1,8 @@
-(ns board.board
-  (:require [re-frame.core :as rf]
-            [board.utils :as utils]
-            [clojure.string :as str]))
+(ns aji.components.Board.Board
+  (:require
+   [re-frame.core :as rf]
+   [aji.components.Board.utils :as utils]
+   [aji.config :as cfg]))
 
 ;; -----------------------------------------------------------------------------
 ;; EVENT HANDLERS
@@ -23,13 +24,19 @@
          new-intersection (assoc curr-intersection :stone stone-color)
          neighbors-coords (vals (:neighbors curr-intersection))
          neighbors-vals (map #(get-in db [:active-board %]) neighbors-coords)
-         neighbors-vals-dec-libs (map #(assoc % :liberties (dec (:liberties %))) neighbors-vals)]
+         neighbors-vals-dec-libs (map #(assoc % :liberties (dec (:liberties %))) neighbors-vals)
+         curr-move-num (get-in db [:active-board :curr-move-num])
+         last-move-played {(inc curr-move-num) {:coord-name coord-name :color stone-color}}
+         curr-move-history (get-in db [:active-board :move-history])
+         new-move-history (conj curr-move-history last-move-played)]
      (-> db
          (assoc-in [:active-board (nth neighbors-coords 0)] (nth neighbors-vals-dec-libs 0))
          (assoc-in [:active-board (nth neighbors-coords 1)] (nth neighbors-vals-dec-libs 1))
          (assoc-in [:active-board (nth neighbors-coords 2)] (nth neighbors-vals-dec-libs 2))
          (assoc-in [:active-board (nth neighbors-coords 3)] (nth neighbors-vals-dec-libs 3))
          (assoc-in [:active-board coord-name] new-intersection)
+         (assoc-in [:active-board :curr-move-num] (inc curr-move-num))
+         (assoc-in [:active-board :move-history] new-move-history)
          (assoc :curr-turn next-turn)))))
 
 
@@ -56,14 +63,6 @@
  (fn [db [_ _]]
    (:curr-turn db)))
 
-(rf/reg-sub
- ::curr-turn-formatted
- :<- [::curr-turn]
- (fn [curr-turn [_ _]]
-   (if (str/includes? curr-turn "WHITE")
-     "White"
-     "Black")))
-
 ;; Set the incoming liberty count for a newly placed stone.
 ;; Example:
 ;; You place stone (S) on a middle intersection which is surrounded by 3 neighboring stones.
@@ -76,13 +75,13 @@
          neighbors-with-stones (map #(:stone %) neighbors-vals)]
      (count (remove nil? neighbors-with-stones)))))
 
-;; TODO: wrap in goog debug
 (rf/reg-sub
  ::num-liberties-at-coord
- (fn [db [_ coord-name]]
-   (-> db
-       (get-in [:active-board coord-name])
-       :liberties)))
+ (when cfg/debug?
+   (fn [db [_ coord-name]]
+     (-> db
+         (get-in [:active-board coord-name])
+         :liberties))))
 
 (defn position->img
   [position]
@@ -125,30 +124,16 @@
         :style {:font-size 0}}
    (doall (map-indexed Intersection row))])
 
-(defn ButtonGroup
-  "ButtonGroup renders a group of buttons to change board size."
-  []
-  [:<>
-  ;;  [:button {:on-click #(rf/dispatch [::set-board-size 9])} "9x9"]
-  ;;  [:button {:on-click #(rf/dispatch [::set-board-size 13])} "13x13"]
-   [:button.button.is-info {:on-click #(rf/dispatch [::set-board-size 19])} "19x19"]])
-
 (defn Board
   "Board renders the game board."
   []
-  (let [board-size @(rf/subscribe [::board-size])
-        new-board @(rf/subscribe [::active-board])
-        curr-turn-formatted @(rf/subscribe [::curr-turn-formatted])
+  (let [new-board @(rf/subscribe [::active-board])
         num-top-corner-neighbors @(rf/subscribe [::num-neighbors-with-stone "1-A"])
         oneA-liberties @(rf/subscribe [::num-liberties-at-coord "1-A"])]
-    [:div {:id "board"
-           :style {:font-size "30px"}}
-
+    [:div.m-4 {:id "board"
+               :style {:font-size "30px"}}
      [:ul {:id "allRows" :style {:listStyleType "none" :white-space "no wrap"}}
       (doall (map-indexed Row new-board))]
-
-     [ButtonGroup]
-     [:p "1-A neighbor count: " num-top-corner-neighbors]
-     [:p "1-A liberty count: " oneA-liberties]
-     [:p "Board size: " board-size]
-     [:p curr-turn-formatted " to play!"]]))
+     [:p "DEV DEBUG DATA BELOW:"]
+     [:p {:style {:color "red" :font-size "20px"}} "1-A neighbor count: " num-top-corner-neighbors]
+     [:p {:style {:color "red" :font-size "20px"}} "1-A liberty count: " oneA-liberties]]))
