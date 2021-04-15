@@ -4,9 +4,12 @@
   {:name "aji"
    :board-size 19
    :curr-turn "TURN_BLACK"
-   :active-board {"1-A" {:stone nil  :liberties 2 :position "POSITION_CORNER_TOP_LEFT" :neighbors {:north nil :east "1-B" :south "2-A" :west nil}}
+   :active-board {:curr-move-num 0
+                  ;; :move-history {1 {:coord-name "1-A" :color "BLACK"}}
+                  :move-history {}
+                  "1-A" {:stone nil  :liberties 2 :position "POSITION_CORNER_TOP_LEFT" :neighbors {:north nil :east "1-B" :south "2-A" :west nil}}
                   "1-B" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP" :neighbors {:north nil :east "1-A" :south "2-B" :west "1-C"}}
-                  "1-C" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}
+                  "1-C" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP" :neighbors {:north nil :east "1-B" :south "2-C" :west "1-D"}}
                   "1-D" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}
                   "1-E" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}
                   "1-F" {:stone nil  :liberties 4 :position "POSITION_SIDE_TOP"}

@@ -1,6 +1,4 @@
-;; TODO put vec2d in this ns
-;; (ns board.aji.utils.vectors) 
-(ns board.utils)
+(ns aji.components.Board.utils)
 
 (defn- vec2d
   "vec2d returns a 2d vector."
