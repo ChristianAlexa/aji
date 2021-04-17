@@ -1,4 +1,4 @@
-(ns aji.components.GameSidebar.InfoPanel.MessagePanel.MessagePanel
+(ns aji.components.message-panel
   (:require [re-frame.core :as rf]
             [clojure.string :as str]))
 

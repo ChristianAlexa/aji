@@ -1,6 +1,6 @@
-(ns aji.pages.GamePage
-  (:require [aji.components.Board.Board :refer [Board]]
-            [aji.components.GameSidebar.GameSidebar :refer [GameSidebar]]))
+(ns aji.pages.game-page
+  (:require [aji.components.board :refer [Board]]
+            [aji.components.game-sidebar :refer [GameSidebar]]))
 
 (defn GamePage
   "GamePage contains all game components."

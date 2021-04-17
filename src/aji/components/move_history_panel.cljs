@@ -1,4 +1,4 @@
-(ns aji.components.GameSidebar.InfoPanel.MoveHistoryPanel.MoveHistoryPanel
+(ns aji.components.move-history-panel
   (:require [re-frame.core :as rf]))
 
 
