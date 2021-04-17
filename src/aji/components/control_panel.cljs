@@ -1,4 +1,4 @@
-(ns aji.components.GameSidebar.ControlPanel.ControlPanel
+(ns aji.components.control-panel
   (:require [re-frame.core :as rf]))
 
 ;; -----------------------------------------------------------------------------
@@ -15,7 +15,8 @@
   "ButtonGroup renders a group of buttons to change board size."
   []
   [:div {:id "buttonGroup"}
-   [:button.button.is-info {:on-click #(rf/dispatch [::set-board-size 19])} "New Game"]])
+   [:button.button.is-danger.is-medium
+    {:on-click #(rf/dispatch [::set-board-size 19])} "New Game"]])
 
 ;; -----------------------------------------------------------------------------
 ;; VIEWS

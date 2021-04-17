@@ -1,4 +1,4 @@
-(ns aji.components.Navbar.Navbar)
+(ns aji.components.navbar)
 
 (defn Navbar
   "Navbar renders at the top of the page."
