@@ -60,11 +60,11 @@
     (case direction
       "NORTH" (when (pos? (dec coord-num))
                 (str (dec coord-num) "-" coord-letter))
-      "EAST" (when (< (.indexOf letters-vec coord-letter) MAX_BOARD_SIZE)
+      "EAST" (when (< (str/index-of letters-vec coord-letter) MAX_BOARD_SIZE)
                (str coord-num "-" (nth letters-vec (inc (str/index-of letters-vec coord-letter)))))
       "SOUTH" (when (<= (inc coord-num) MAX_BOARD_SIZE)
                 (str (inc coord-num) "-" coord-letter))
-      "WEST" (when-not (neg? (dec (.indexOf letters-vec coord-letter)))
+      "WEST" (when-not (neg? (dec (str/index-of letters-vec coord-letter)))
                (str coord-num "-" (nth letters-vec (dec (str/index-of letters-vec coord-letter))))))))
 
 (defn get-neighbors-coords
