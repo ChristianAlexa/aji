@@ -30,7 +30,12 @@
    (fn [db [_ coord-name]]
      (-> db
          (get-in [:active-board coord-name])
-         :stone))))
+         :stone)))
+
+  (rf/reg-sub
+   ::selected-puzzle
+   (fn [db [_ _]]
+     (:selected-puzzle db))))
 
 ;; -----------------------------------------------------------------------------
 ;; VIEWS
@@ -38,9 +43,11 @@
   []
   (let [num-top-corner-neighbors @(rf/subscribe [::num-neighbors-with-stone "1-A"])
         num-top-corner-liberties @(rf/subscribe [::num-liberties-at-coord "1-A"])
-        stone @(rf/subscribe [::stone "1-A"])]
+        stone @(rf/subscribe [::stone "1-A"])
+        selected-puzzle @(rf/subscribe [::selected-puzzle])]
     [:div.has-background-warning
      [:p "DEV DEBUG DATA BELOW:"]
      [:p {:style {:color "red" :font-size "20px"}} "1-A neighbor count: " num-top-corner-neighbors]
      [:p {:style {:color "red" :font-size "20px"}} "1-A liberty count: " num-top-corner-liberties]
-     [:p {:style {:color "red" :font-size "20px"}} "1-A stone:" stone]]))
+     [:p {:style {:color "red" :font-size "20px"}} "1-A stone: " stone]
+     [:p {:style {:color "red" :font-size "20px"}} "Puzzle: " selected-puzzle]]))

@@ -2,6 +2,7 @@
   (:require [aji.components.control-panel :refer [ControlPanel]]
             [aji.components.info-panel :refer [InfoPanel]]
             [aji.components.debug-panel :refer [DebugPanel]]
+            ;; [aji.components.capture-panel :refer [CapturePanel]]
             [aji.config :as cfg]))
 
 (defn GameSidebar
@@ -11,4 +12,5 @@
    (when cfg/debug?
      [DebugPanel])
    [ControlPanel]
+  ;;  [CapturePanel]
    [InfoPanel]])

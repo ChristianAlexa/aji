@@ -14,9 +14,9 @@
 (defn MoveHistoryDetail
   "MoveHistoryDetail renders information about a single move."
   [move]
-  (let [move-num (first move)
-        coord-name (:coord-name (second move))
-        player-color (:color (second move))]
+  (let [move-num (first (keys move))
+        coord-name (:coord-name (first (vals move)))
+        player-color (:color (first (vals move)))]
     [:li.panel-block {:key move-num}
      "Move " move-num ": " player-color " played " coord-name]))
 

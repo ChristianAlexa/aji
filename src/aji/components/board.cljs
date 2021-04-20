@@ -1,7 +1,9 @@
 (ns aji.components.board
   (:require
    [re-frame.core :as rf]
-   [aji.go.validation :as validation]))
+   [aji.go.validation :as validation]
+   [clojure.string :as str]
+   [aji.puzzles.patterns :as puzzles]))
 
 ;; -----------------------------------------------------------------------------
 ;; HELPERS
@@ -36,21 +38,34 @@
 (def MAX_BOARD_SIZE
   "MAX_BOARD_SIZE is for a 19x19 standard board."
   19)
+(defn coord->row-num
+  "1-A => 1"
+  [coord]
+  (js/parseInt (re-find #"\d+" coord) 10))
+
+(defn coord->col-letter
+  "1-A => A"
+  [coord]
+  (last coord))
 
 (defn get-neighbor-coord
-  "get-neighbor-coord returns the neighbor-coord relative to the given coord intersection."
+  "get-neighbor-coord returns the neighbor-coord string relative to the given coord intersection.
+  
+   Example: 
+   (get-neighbord-coord \"EAST\" \"1-A\")
+   => \"1-B\""
   [direction coord]
-  (let [coord-num  (js/parseInt (re-find #"\d+" coord))
-        coord-letter (last coord)]
+  (let [coord-num  (coord->row-num coord)
+        coord-letter (coord->col-letter coord)]
     (case direction
       "NORTH" (when (pos? (dec coord-num))
                 (str (dec coord-num) "-" coord-letter))
       "EAST" (when (< (.indexOf letters-vec coord-letter) MAX_BOARD_SIZE)
-               (str coord-num "-" (nth letters-vec (inc (.indexOf letters-vec coord-letter)))))
+               (str coord-num "-" (nth letters-vec (inc (str/index-of letters-vec coord-letter)))))
       "SOUTH" (when (<= (inc coord-num) MAX_BOARD_SIZE)
                 (str (inc coord-num) "-" coord-letter))
       "WEST" (when-not (neg? (dec (.indexOf letters-vec coord-letter)))
-               (str coord-num "-" (nth letters-vec (dec (.indexOf letters-vec coord-letter))))))))
+               (str coord-num "-" (nth letters-vec (dec (str/index-of letters-vec coord-letter))))))))
 
 (defn get-neighbors-coords
   [coord]
@@ -60,43 +75,74 @@
    :west (get-neighbor-coord "WEST" coord)})
 
 ;; TODO 
-;; - getting a return of 20 rows of intersection when expecting 19
 ;; - each map value needs to be paired with its coord
 ;; - the combined map needs move history and curr move num
 ;; - this data structure assoc to the app-db
-(defn seed-active-board
-  "seed-active-board creates the key and values for all 19x19 coords along with the move history and curr move num in app-db."
+(defn initial-intersection-values
+  "seed-active-board creates the key and values for all 19x19 coords along with the move history and curr move num in app-db.
+   
+   The return shape is a collection of rows:
+   [ 
+     [{} {} {}]      ;; a row of intersection values 
+     [{} {} {}]
+     [{} {} {}]
+   ]"
   []
   (let [board-with-coords (create-board 19)]
-    (map (fn [row]
-           (map (fn [coord]
-                  (cond
+    (mapv (fn [row]
+            (mapv (fn [coord]
+                    (cond
 
-                ;; CORNERS
-                    (= coord "1-A") {:stone nil :liberties 2 :position "POSITION_CORNER_TOP_LEFT" :neighbors (get-neighbors-coords coord)}
-                    (= coord "1-T") {:stone nil :liberties 2 :position "POSITION_CORNER_TOP_RIGHT" :neighbors (get-neighbors-coords coord)}
-                    (= coord "19-A") {:stone nil :liberties 2 :position "POSITION_CORNER_BOTTOM_LEFT" :neighbors (get-neighbors-coords coord)}
-                    (= coord "19-T") {:stone nil :liberties 2 :position "POSITION_CORNER_BOTTOM_RIGHT" :neighbors (get-neighbors-coords coord)}
+                    ;; CORNERS
+                      (= coord "1-A") {:stone nil
+                                       :liberties 2
+                                       :position "POSITION_CORNER_TOP_LEFT"
+                                       :neighbors (get-neighbors-coords coord)}
+                      (= coord "1-T") {:stone nil :liberties 2 :position "POSITION_CORNER_TOP_RIGHT" :neighbors (get-neighbors-coords coord)}
+                      (= coord "19-A") {:stone nil :liberties 2 :position "POSITION_CORNER_BOTTOM_LEFT" :neighbors (get-neighbors-coords coord)}
+                      (= coord "19-T") {:stone nil :liberties 2 :position "POSITION_CORNER_BOTTOM_RIGHT" :neighbors (get-neighbors-coords coord)}
 
-                ;; TOP SIDE
-                    (= 1 (js/parseInt (re-find #"\d+" coord))) {:stone nil :liberties 3 :position "POSITION_SIDE_TOP" :neighbors (get-neighbors-coords coord)}
+                    ;; TOP SIDE
+                      (= 1 (coord->row-num coord)) {:stone nil :liberties 3 :position "POSITION_SIDE_TOP" :neighbors (get-neighbors-coords coord)}
 
-                ;; LEFT SIDE
-                    (= "A" (last coord)) {:stone nil :liberties 3 :position "POSITION_SIDE_LEFT" :neighbors (get-neighbors-coords coord)}
+                    ;; LEFT SIDE
+                      (= "A" (last coord)) {:stone nil :liberties 3 :position "POSITION_SIDE_LEFT" :neighbors (get-neighbors-coords coord)}
 
-                ;; RIGHT SIDE
-                    (= "T" (last coord)) {:stone nil :liberties 3 :position "POSITION_SIDE_RIGHT" :neighbors (get-neighbors-coords coord)}
+                    ;; RIGHT SIDE
+                      (= "T" (last coord)) {:stone nil :liberties 3 :position "POSITION_SIDE_RIGHT" :neighbors (get-neighbors-coords coord)}
 
-                ;; BOTTOM SIDE
-                    (= 19 (js/parseInt (re-find #"\d+" coord))) {:stone nil :liberties 3 :position "POSITION_SIDE_BOTTOM" :neighbors (get-neighbors-coords coord)}
+                    ;; BOTTOM SIDE
+                      (= 19 (js/parseInt (re-find #"\d+" coord))) {:stone nil :liberties 3 :position "POSITION_SIDE_BOTTOM" :neighbors (get-neighbors-coords coord)}
 
-                ;; MIDDLE
-                    :else {:stone nil :liberties 4 :position "POSITION_MIDDLE" :neighbors (get-neighbors-coords coord)}))
-                row))
-         board-with-coords)))
+                    ;; MIDDLE
+                      :else {:stone nil :liberties 4 :position "POSITION_MIDDLE" :neighbors (get-neighbors-coords coord)}))
+                  row))
+          board-with-coords)))
+
+(defn initial-active-board
+  "initial-active-board returns a map with the shape {\"1-A\" {:stone nil :liberties ... \"1-B\" {:stone nil :liberties ...}}}"
+  [db puzzle-id]
+  (let [initial-coord-vals-vec (into [] (flatten (initial-intersection-values)))
+        initial-coord-keys-vec (into [] (flatten (create-board 19)))
+        coords-and-vals-map (zipmap initial-coord-keys-vec initial-coord-vals-vec)
+        puzzle-pattern (get puzzles/PATTERNS puzzle-id)
+        active-board (if (= "EMPTY" puzzle-id)
+                       coords-and-vals-map
+                       (merge coords-and-vals-map puzzle-pattern))]
+    (-> db
+        (assoc-in [:active-board :curr-move-num] 0)
+        (assoc-in [:active-board :move-history] {})
+        (assoc-in [:active-board :white-captured-stones] 0)
+        (assoc-in [:active-board :black-captured-stones] 0)
+        (assoc :active-board active-board))))
 
 ;; -----------------------------------------------------------------------------
 ;; EVENT HANDLERS
+(rf/reg-event-db
+ :board/seed-board
+ (fn [db [_ puzzle-id]]
+   (initial-active-board db puzzle-id)))
+
 (rf/reg-event-db
  ::set-board-size
  (fn [db [_ board-size]]
@@ -116,32 +162,40 @@
          neighbors-coords (vals (:neighbors curr-intersection))
          neighbors-vals (map #(get-in db [:active-board %]) neighbors-coords)
          neighbors-vals-with-decremented-libs (map (fn [neighbor]
-                                                     (let [new-num-liberties (dec (:liberties neighbor))]
-                                                       (if (and (zero? new-num-liberties)
-                                                                (not= stone-color (:stone neighbor)))
+                                                     (let [new-neighbor-liberties (dec (:liberties neighbor))
+                                                           enemy-neighbor? (not= stone-color (:stone neighbor))]
+                                                       (if (and (zero? new-neighbor-liberties) enemy-neighbor?)
                                                          (-> neighbor
-                                                             (assoc :liberties new-num-liberties)
+                                                             (assoc :liberties new-neighbor-liberties)
+
+                                                             ;; the stone has been captured
                                                              (assoc :stone nil))
-                                                         (assoc neighbor :liberties new-num-liberties))))
+                                                         (assoc neighbor :liberties new-neighbor-liberties))))
                                                    neighbors-vals)
          curr-move-num (get-in db [:active-board :curr-move-num])
          last-move-played {(inc curr-move-num) {:coord-name coord-name :color stone-color}}
          curr-move-history (get-in db [:active-board :move-history])
          new-move-history (conj curr-move-history last-move-played)
+        ;;  num-white-captured-stones (when (= curr-turn "TURN_BLACK")
+        ;;                              (count (map (fn [n]
+        ;;                                            (let [a-captured-white-neighbor (and (zero? (:liberties n)) (nil? (:stone n)))]
+        ;;                                              (when a-captured-white-neighbor
+        ;;                                                (identity n))))
+        ;;                                          neighbors-vals-with-decremented-libs)))
          legal-move? (validation/legal-move? db coord-name)]
      (when legal-move?
        (-> db
-           (assoc-in [:active-board (nth neighbors-coords 0)] (nth neighbors-vals-with-decremented-libs 0))
-           (assoc-in [:active-board (nth neighbors-coords 1)] (nth neighbors-vals-with-decremented-libs 1))
-           (assoc-in [:active-board (nth neighbors-coords 2)] (nth neighbors-vals-with-decremented-libs 2))
-           (assoc-in [:active-board (nth neighbors-coords 3)] (nth neighbors-vals-with-decremented-libs 3))
+          ;;  (assoc-in [:active-board :white-captured-stones] num-white-captured-stones)
+          ;;  (assoc-in [:active-board :black-captured-stones] num-black-captured-stones)
+           (assoc-in [:active-board (nth neighbors-coords 0)] (nth neighbors-vals-with-decremented-libs 0)) ; north neighbor
+           (assoc-in [:active-board (nth neighbors-coords 1)] (nth neighbors-vals-with-decremented-libs 1)) ; west neighbor
+           (assoc-in [:active-board (nth neighbors-coords 2)] (nth neighbors-vals-with-decremented-libs 2)) ; south neighbor
+           (assoc-in [:active-board (nth neighbors-coords 3)] (nth neighbors-vals-with-decremented-libs 3)) ; east neighbor
            (assoc-in [:active-board coord-name] new-intersection)
            (assoc-in [:active-board :curr-move-num] (inc curr-move-num))
            (assoc-in [:active-board :move-history] new-move-history)
            (assoc :curr-turn next-turn))))))
 
-;; dec libs
-;; if 0 , set stone to nil
 
 ;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS
