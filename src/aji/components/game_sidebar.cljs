@@ -1,16 +1,14 @@
 (ns aji.components.game-sidebar
   (:require [aji.components.control-panel :refer [ControlPanel]]
             [aji.components.info-panel :refer [InfoPanel]]
-            [aji.components.debug-panel :refer [DebugPanel]]
-            ;; [aji.components.capture-panel :refer [CapturePanel]]
-            [aji.config :as cfg]))
+            ;; [aji.components.debug-panel :refer [DebugPanel]]
+            ))
 
 (defn GameSidebar
   "GameSidebar is a container for game panel containers."
   []
   [:div {:id "gameSidebar"}
-   (when cfg/debug?
-     [DebugPanel])
+  ;;  (when cfg/debug?
+  ;;    [DebugPanel])
    [ControlPanel]
-  ;;  [CapturePanel]
    [InfoPanel]])
