@@ -17,7 +17,8 @@
   (let [move-num (first (keys move))
         coord-name (:coord-name (first (vals move)))
         player-color (:color (first (vals move)))]
-    [:li.panel-block {:key move-num}
+    [:li.panel-block {:key move-num
+                      :style {:backgroundColor "white"}}
      "Move " move-num ": " player-color " played " coord-name]))
 
 (defn MoveHistoryPanel

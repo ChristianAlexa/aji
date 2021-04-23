@@ -5,6 +5,6 @@
 (defn PageLayout
   "PageLayout is the root page container."
   []
-  [:<>
+  [:div {:id "pageLayout"}
    [Navbar]
    [GamePage]])

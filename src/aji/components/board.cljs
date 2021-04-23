@@ -20,7 +20,7 @@
   ["A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"])
 
 (defn create-board
-  "create-bord returns a 2d vector with coord-names strings.
+  "create-bord returns a 2d vector with coords strings.
 
    The inner vectors represent rows. 
    A collection of rows makes the entire board.
@@ -74,10 +74,6 @@
    :south (get-neighbor-coord "SOUTH" coord)
    :west (get-neighbor-coord "WEST" coord)})
 
-;; TODO 
-;; - each map value needs to be paired with its coord
-;; - the combined map needs move history and curr move num
-;; - this data structure assoc to the app-db
 (defn initial-intersection-values
   "seed-active-board creates the key and values for all 19x19 coords along with the move history and curr move num in app-db.
    
@@ -125,7 +121,13 @@
   (let [initial-coord-vals-vec (into [] (flatten (initial-intersection-values)))
         initial-coord-keys-vec (into [] (flatten (create-board 19)))
         coords-and-vals-map (zipmap initial-coord-keys-vec initial-coord-vals-vec)
-        puzzle-pattern (get puzzles/PATTERNS puzzle-id)
+        puzzle (get puzzles/PATTERNS puzzle-id)
+        puzzle-pattern (:pattern puzzle)
+        puzzle-color-to-move (:color-to-move puzzle)
+        puzzle-winning-move (:winning-move puzzle)
+        puzzle-curr-turn (if (= "EMPTY" puzzle-id)
+                           "TURN_BLACK"
+                           puzzle-color-to-move)
         active-board (if (= "EMPTY" puzzle-id)
                        coords-and-vals-map
                        (merge coords-and-vals-map puzzle-pattern))]
@@ -134,6 +136,9 @@
         (assoc-in [:active-board :move-history] {})
         (assoc-in [:active-board :white-captured-stones] 0)
         (assoc-in [:active-board :black-captured-stones] 0)
+        (assoc :winning-move puzzle-winning-move)
+        (assoc :selected-puzzle puzzle-id)
+        (assoc :curr-turn puzzle-curr-turn)
         (assoc :active-board active-board))))
 
 ;; -----------------------------------------------------------------------------
@@ -176,17 +181,9 @@
          last-move-played {(inc curr-move-num) {:coord-name coord-name :color stone-color}}
          curr-move-history (get-in db [:active-board :move-history])
          new-move-history (conj curr-move-history last-move-played)
-        ;;  num-white-captured-stones (when (= curr-turn "TURN_BLACK")
-        ;;                              (count (map (fn [n]
-        ;;                                            (let [a-captured-white-neighbor (and (zero? (:liberties n)) (nil? (:stone n)))]
-        ;;                                              (when a-captured-white-neighbor
-        ;;                                                (identity n))))
-        ;;                                          neighbors-vals-with-decremented-libs)))
          legal-move? (validation/legal-move? db coord-name)]
      (when legal-move?
        (-> db
-          ;;  (assoc-in [:active-board :white-captured-stones] num-white-captured-stones)
-          ;;  (assoc-in [:active-board :black-captured-stones] num-black-captured-stones)
            (assoc-in [:active-board (nth neighbors-coords 0)] (nth neighbors-vals-with-decremented-libs 0)) ; north neighbor
            (assoc-in [:active-board (nth neighbors-coords 1)] (nth neighbors-vals-with-decremented-libs 1)) ; west neighbor
            (assoc-in [:active-board (nth neighbors-coords 2)] (nth neighbors-vals-with-decremented-libs 2)) ; south neighbor
@@ -243,21 +240,23 @@
 ;; VIEWS
 (defn Intersection
   "Intersection renders a single point, the smallest atomic unit on the board."
-  [idx coord-name]
-  (let [intersection @(rf/subscribe [::intersection coord-name])
+  [_idx coord]
+  (let [intersection @(rf/subscribe [::intersection coord])
         position (:position intersection)
         empty-img (position->img position)
         black-stone-img "img/BLACK_STONE.png"
         white-stone-img "img/WHITE_STONE.png"]
     [:div
-     {:key coord-name
+     {:key coord
       :style {:display "inline-block"}}
      [:img {:src (cond
                    (= "WHITE" (:stone intersection)) white-stone-img
                    (= "BLACK" (:stone intersection)) black-stone-img
                    :else (:path empty-img))
-            :style (when (nil? (:stone intersection)) {:transform (:rotate empty-img)})
-            :on-click #(rf/dispatch [::play-move coord-name])}]]))
+            :style {:transform (when (nil? (:stone intersection)) (:rotate empty-img))
+                    :max-width "30px"}
+            :draggable "false"
+            :on-click #(rf/dispatch [::play-move coord])}]]))
 
 (defn Row
   "Row renders a row of intersections."
@@ -270,6 +269,6 @@
   "Board renders the game board."
   []
   (let [new-board @(rf/subscribe [::active-board])]
-    [:div.m-4 {:id "board" :style {:font-size "30px"}}
+    [:div.m-4 {:id "board" :style {:font-size "30px" :min-width "800"}}
      [:ul {:id "allRows" :style {:listStyleType "none" :white-space "no wrap"}}
       (doall (map-indexed Row new-board))]]))

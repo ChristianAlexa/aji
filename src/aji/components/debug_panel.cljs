@@ -5,11 +5,11 @@
 ;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS
 
+(when cfg/debug?
 ;; Set the incoming liberty count for a newly placed stone.
 ;; Example:
 ;; You place stone (S) on a middle intersection which is surrounded by 3 neighboring stones.
 ;; Stone S has a liberty count of 1 because 4 minus 3.
-(when cfg/debug?
   (rf/reg-sub
    ::num-neighbors-with-stone
    (fn [db [_ coord-name]]
@@ -47,7 +47,7 @@
         selected-puzzle @(rf/subscribe [::selected-puzzle])]
     [:div.has-background-warning
      [:p "DEV DEBUG DATA BELOW:"]
-     [:p {:style {:color "red" :font-size "20px"}} "1-A neighbor count: " num-top-corner-neighbors]
-     [:p {:style {:color "red" :font-size "20px"}} "1-A liberty count: " num-top-corner-liberties]
-     [:p {:style {:color "red" :font-size "20px"}} "1-A stone: " stone]
-     [:p {:style {:color "red" :font-size "20px"}} "Puzzle: " selected-puzzle]]))
+     [:p.debug "1-A neighbor count: " num-top-corner-neighbors]
+     [:p.debug "1-A liberty count: " num-top-corner-liberties]
+     [:p.debug "1-A stone: " stone]
+     [:p.debug "Puzzle: " selected-puzzle]]))

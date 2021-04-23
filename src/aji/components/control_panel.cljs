@@ -1,34 +1,24 @@
 (ns aji.components.control-panel
   (:require [re-frame.core :as rf]
-            [aji.components.modal :refer [Modal]]))
-
-;; -----------------------------------------------------------------------------
-;; EVENT HANDLERS
-(rf/reg-event-db
- ::show-modal
- (fn [db [_ _]]
-   (assoc db :modal? true)))
+            [aji.components.dropdown :refer [Dropdown]]))
 
 ;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS
 (rf/reg-sub
- ::modal?
+ ::dropdown-active?
  (fn [db [_ _]]
-   (:modal? db)))
+   (:dropdown-active? db)))
 
 ;; -----------------------------------------------------------------------------
 ;; VIEWS
 (defn ButtonGroup
   "ButtonGroup renders a group of buttons to change board size."
   []
-  (let [modal? @(rf/subscribe [::modal?])]
+  (let [dropdown-active? @(rf/subscribe [::dropdown-active?])]
     [:div {:id "buttonGroup"}
-    ;;  [Modal]
-    ;;  (when modal? [Modal])
-     [:button.button.is-danger.is-medium.mr-4
-      {:on-click #(rf/dispatch [:board/seed-board "EMPTY"])} "Reset Board"]
-     [:button.button.is-info.is-medium.mr-4
-      {:on-click #(rf/dispatch [:board/seed-board "PUZZLE_PATTERN_1"])} "Puzzle 1"]]))
+     [Dropdown ["PUZZLE_PATTERN_1" "PUZZLE_PATTERN_2"] dropdown-active?]
+     [:button.button.is-danger.is-small.ml-4.mb-4
+      {:on-click #(rf/dispatch [:board/seed-board "EMPTY"])} "Reset"]]))
 
 (defn ControlPanel
   "ControlPanel renders panels that allows a player to interact with the active game."

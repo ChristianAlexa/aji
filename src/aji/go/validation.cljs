@@ -11,8 +11,8 @@
       :liberties
       pos?))
 
-;; TODO friendly neightbor should check to see if the neighbors have available liberties
-;; for themselves or if there friendly group has a positive liberty count.
+;; TODO friendly neighbor should check to see if the neighbors have available liberties
+;; for themselves or if their friendly group has a positive liberty count.
 (defn friendly-neighbor?
   [db coord-name]
   (let [coord-stone-color (if (= "TURN_WHITE" (:curr-turn db)) "WHITE" "BLACK")
