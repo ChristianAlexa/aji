@@ -4,6 +4,7 @@
    [re-frame.core :as rf]
    [aji.events :as events]
    [aji.views :as views]
+   [aji.subs]
    [aji.config :as config]))
 
 (defn dev-setup []

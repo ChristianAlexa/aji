@@ -4,5 +4,15 @@
 }
 
 html {
-  background-color: gray;
+  background-color: #212122;
+}
+
+.panel-heading {
+  background-color: #434343;
+  color: #868885;
+}
+
+.panel-block {
+  background-color: #6E6B6B;
+  color: white;
 }

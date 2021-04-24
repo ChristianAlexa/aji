@@ -5,12 +5,12 @@
 ;; SUBSCRIPTIONS
 (rf/reg-sub
  ::num-white-captured-stones
- (fn [db [_ _]]
+ (fn [db _]
    (get-in db [:active-board :white-captured-stones])))
 
 (rf/reg-sub
  ::num-black-captured-stones
- (fn [db [_ _]]
+ (fn [db _]
    (get-in db [:active-board :black-captured-stones])))
 
 ;; -----------------------------------------------------------------------------

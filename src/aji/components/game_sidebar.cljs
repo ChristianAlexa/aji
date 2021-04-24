@@ -10,5 +10,6 @@
   [:div {:id "gameSidebar"}
   ;;  (when cfg/debug?
   ;;    [DebugPanel])
+   [:img.mb-2 {:src "img/aji-logo.png"}]
    [ControlPanel]
    [InfoPanel]])
