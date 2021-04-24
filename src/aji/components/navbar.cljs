@@ -3,7 +3,6 @@
 (defn Navbar
   "Navbar renders at the top of the page."
   []
-  [:div.hero.is-primary.has-text-centered {:id "navbar"}
-   [:div.hero-body {:style {:backgroundColor "#202225"}}
-    [:p.title {:style {:color "#FCC38C"}} "AJI"]
-    [:p.subtitle {:style {:color "#A2FDA3"}} "Find your potential"]]])
+  [:div.hero.is-primary.mb-4 {:id "navbar"}
+   [:div.hero-body.nav {:style {:backgroundColor "#2D2D2D"}}
+    [:img {:src "img/aji-logo.png"}]]])

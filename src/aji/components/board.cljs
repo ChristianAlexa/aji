@@ -121,7 +121,7 @@
   (let [initial-coord-vals-vec (into [] (flatten (initial-intersection-values)))
         initial-coord-keys-vec (into [] (flatten (create-board 19)))
         coords-and-vals-map (zipmap initial-coord-keys-vec initial-coord-vals-vec)
-        puzzle (get puzzles/PATTERNS puzzle-id)
+        puzzle (get puzzles/patterns puzzle-id)
         puzzle-pattern (:pattern puzzle)
         puzzle-color-to-move (:color-to-move puzzle)
         puzzle-winning-move (:winning-move puzzle)
@@ -181,8 +181,9 @@
          last-move-played {(inc curr-move-num) {:coord-name coord-name :color stone-color}}
          curr-move-history (get-in db [:active-board :move-history])
          new-move-history (conj curr-move-history last-move-played)
-         legal-move? (validation/legal-move? db coord-name)]
-     (when legal-move?
+         legal-move? (validation/legal-move? db coord-name)
+         puzzle-solved? nil]
+     (when (and legal-move? (not puzzle-solved?))
        (-> db
            (assoc-in [:active-board (nth neighbors-coords 0)] (nth neighbors-vals-with-decremented-libs 0)) ; north neighbor
            (assoc-in [:active-board (nth neighbors-coords 1)] (nth neighbors-vals-with-decremented-libs 1)) ; west neighbor
@@ -269,6 +270,6 @@
   "Board renders the game board."
   []
   (let [new-board @(rf/subscribe [::active-board])]
-    [:div.m-4 {:id "board" :style {:font-size "30px" :min-width "800"}}
+    [:div {:id "board" :style {:font-size "30px"}}
      [:ul {:id "allRows" :style {:listStyleType "none" :white-space "no wrap"}}
       (doall (map-indexed Row new-board))]]))
