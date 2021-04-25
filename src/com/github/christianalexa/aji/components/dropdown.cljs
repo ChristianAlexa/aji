@@ -1,4 +1,4 @@
-(ns aji.components.dropdown
+(ns com.github.christianalexa.aji.components.dropdown
   (:require [re-frame.core :as rf]))
 
 ;; -----------------------------------------------------------------------------

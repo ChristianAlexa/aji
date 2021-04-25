@@ -1,11 +1,11 @@
-(ns aji.core
+(ns com.github.christianalexa.aji.core
   (:require
    [reagent.dom :as rdom]
    [re-frame.core :as rf]
-   [aji.events :as events]
-   [aji.views :as views]
-   [aji.subs]
-   [aji.config :as config]))
+   [com.github.christianalexa.aji.events :as events]
+   [com.github.christianalexa.aji.views :as views]
+   [com.github.christianalexa.aji.subs]
+   [com.github.christianalexa.aji.config :as config]))
 
 (defn dev-setup []
   (when config/debug?

@@ -1,6 +1,6 @@
-(ns aji.components.debug-panel
+(ns com.github.christianalexa.aji.components.debug-panel
   (:require [re-frame.core :as rf]
-            [aji.config :as cfg]))
+            [com.github.christianalexa.aji.config :as cfg]))
 
 ;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS

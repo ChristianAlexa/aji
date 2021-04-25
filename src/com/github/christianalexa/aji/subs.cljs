@@ -1,7 +1,7 @@
-(ns aji.subs
+(ns com.github.christianalexa.aji.subs
   (:require
    [re-frame.core :as rf]
-   [aji.puzzles.patterns :as puzzles]))
+   [com.github.christianalexa.aji.puzzles.patterns :as puzzles]))
 
 (rf/reg-sub
  ::name

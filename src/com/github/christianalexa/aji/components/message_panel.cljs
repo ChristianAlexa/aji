@@ -1,7 +1,7 @@
-(ns aji.components.message-panel
+(ns com.github.christianalexa.aji.components.message-panel
   (:require [re-frame.core :as rf]
             [clojure.string :as str]
-            [aji.puzzles.patterns :as puzzles]))
+            [com.github.christianalexa.aji.puzzles.patterns :as puzzles]))
 
 ;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS

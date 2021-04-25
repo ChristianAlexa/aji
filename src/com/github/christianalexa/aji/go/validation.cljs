@@ -1,4 +1,4 @@
-(ns aji.go.validation)
+(ns com.github.christianalexa.aji.go.validation)
 
 (defn empty-intersection?
   [db coord-name]

@@ -1,4 +1,4 @@
-(ns aji.components.capture-panel
+(ns com.github.christianalexa.aji.components.capture-panel
   (:require [re-frame.core :as rf]))
 
 ;; -----------------------------------------------------------------------------
