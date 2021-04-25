@@ -1,4 +1,4 @@
-(ns aji.components.move-history-panel
+(ns com.github.christianalexa.aji.components.move-history-panel
   (:require [re-frame.core :as rf]))
 
 

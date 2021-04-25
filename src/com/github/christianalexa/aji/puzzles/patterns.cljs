@@ -1,4 +1,4 @@
-(ns aji.puzzles.patterns)
+(ns com.github.christianalexa.aji.puzzles.patterns)
 
 (def patterns
   {"PUZZLE_PATTERN_1" {:pattern {"2-C" {:stone "BLACK"

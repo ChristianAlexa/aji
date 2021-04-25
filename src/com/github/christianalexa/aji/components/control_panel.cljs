@@ -1,6 +1,6 @@
-(ns aji.components.control-panel
+(ns com.github.christianalexa.aji.components.control-panel
   (:require [re-frame.core :as rf]
-            [aji.components.dropdown :refer [Dropdown]]))
+            [com.github.christianalexa.aji.components.dropdown :refer [Dropdown]]))
 
 ;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS

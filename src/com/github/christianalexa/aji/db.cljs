@@ -1,4 +1,4 @@
-(ns aji.db)
+(ns com.github.christianalexa.aji.db)
 
 (def default-db
   {:name "aji"

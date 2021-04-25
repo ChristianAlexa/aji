@@ -1,8 +1,7 @@
-(ns aji.events
+(ns com.github.christianalexa.aji.events
   (:require
    [re-frame.core :as re-frame]
-   [aji.db :as db]
-   ))
+   [com.github.christianalexa.aji.db :as db]))
 
 (re-frame/reg-event-db
  ::initialize-db

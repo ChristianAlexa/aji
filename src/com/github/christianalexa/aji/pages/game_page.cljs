@@ -1,6 +1,6 @@
-(ns aji.pages.game-page
-  (:require [aji.components.board :refer [Board]]
-            [aji.components.game-sidebar :refer [GameSidebar]]))
+(ns com.github.christianalexa.aji.pages.game-page
+  (:require [com.github.christianalexa.aji.components.board :refer [Board]]
+            [com.github.christianalexa.aji.components.game-sidebar :refer [GameSidebar]]))
 
 (defn GamePage
   "GamePage contains all game components."

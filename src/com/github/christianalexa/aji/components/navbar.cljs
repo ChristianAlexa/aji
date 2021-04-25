@@ -1,4 +1,4 @@
-(ns aji.components.navbar)
+(ns com.github.christianalexa.aji.components.navbar)
 
 (defn Navbar
   "Navbar renders at the top of the page."

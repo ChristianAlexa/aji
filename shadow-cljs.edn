@@ -21,7 +21,7 @@
    :output-dir "resources/public/js/compiled"
    :asset-path "/js/compiled"
    :modules
-   {:app {:init-fn aji.core/init}}
+   {:app {:init-fn com.github.christianalexa.aji.core/init}}
    :devtools
    {:preloads []}
    :dev

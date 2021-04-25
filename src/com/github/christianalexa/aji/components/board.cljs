@@ -1,9 +1,9 @@
-(ns aji.components.board
+(ns com.github.christianalexa.aji.components.board
   (:require
    [re-frame.core :as rf]
-   [aji.go.validation :as validation]
+   [com.github.christianalexa.aji.go.validation :as validation]
    [clojure.string :as str]
-   [aji.puzzles.patterns :as puzzles]))
+   [com.github.christianalexa.aji.puzzles.patterns :as puzzles]))
 
 ;; -----------------------------------------------------------------------------
 ;; HELPERS
