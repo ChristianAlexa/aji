@@ -7,6 +7,8 @@
    :selected-puzzle nil
    :dropdown-active? false
    :winning-move nil
+   :puzzle-mode? false
+   :max-num-moves nil
    :active-board {:curr-move-num 0
                   :move-history {}
                   :white-captured-stones 0

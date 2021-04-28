@@ -38,6 +38,7 @@
 (def MAX_BOARD_SIZE
   "MAX_BOARD_SIZE is for a 19x19 standard board."
   19)
+
 (defn coord->row-num
   "1-A => 1"
   [coord]
@@ -182,8 +183,9 @@
          curr-move-history (get-in db [:active-board :move-history])
          new-move-history (conj curr-move-history last-move-played)
          legal-move? (validation/legal-move? db coord-name)
-         puzzle-solved? nil]
-     (when (and legal-move? (not puzzle-solved?))
+         puzzle-mode? (:puzzle-mode? db)
+         moves-left-to-play? (<= (count new-move-history) (:max-num-moves db))]
+     (when (and legal-move? puzzle-mode? moves-left-to-play?)
        (-> db
            (assoc-in [:active-board (nth neighbors-coords 0)] (nth neighbors-vals-with-decremented-libs 0)) ; north neighbor
            (assoc-in [:active-board (nth neighbors-coords 1)] (nth neighbors-vals-with-decremented-libs 1)) ; west neighbor

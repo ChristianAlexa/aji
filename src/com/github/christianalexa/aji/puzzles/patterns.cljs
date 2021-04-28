@@ -20,7 +20,7 @@
                        :winning-move "3-B"
                        :goal-message "Capture white!"
                        :color-to-move "TURN_BLACK"
-                       :allowed-num-moves 1
+                       :max-num-moves 1
                        :puzzle-description "Basic - Kill"}
    "PUZZLE_PATTERN_2" {:pattern {"4-I" {:stone "BLACK"
                                         :liberties 3
@@ -47,11 +47,11 @@
                                         :position "POSITION_MIDDLE"
                                         :neighbors nil}
                                  "5-G" {:stone "BLACK"
-                                        :liberties 1
+                                        :liberties 3
                                         :position "POSITION_MIDDLE"
                                         :neighbors nil}}
                        :winning-move "4-H"
                        :goal-message "Save white!"
                        :color-to-move "TURN_WHITE"
-                       :allowed-num-moves 1
+                       :max-num-moves 1
                        :puzzle-description "Basic - Escape"}})
