@@ -3,6 +3,13 @@
             [com.github.christianalexa.aji.components.dropdown :refer [Dropdown]]))
 
 ;; -----------------------------------------------------------------------------
+;; EVENT HANDLERS
+(rf/reg-event-db
+ ::turn-off-puzzle-mode
+ (fn [db [_ _]]
+   (assoc db :puzzle-mode? false)))
+
+;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS
 (rf/reg-sub
  ::dropdown-active?
@@ -14,13 +21,24 @@
  (fn [db [_ _]]
    (:selected-puzzle db)))
 
+(rf/reg-event-db
+ ::reset-max-num-moves
+ (fn [db [_ _]]
+   (assoc db :max-num-moves nil)))
+
+(defn reset-button-handler
+  []
+  (rf/dispatch [:board/seed-board "EMPTY"])
+  (rf/dispatch [::turn-off-puzzle-mode])
+  (rf/dispatch [::reset-max-num-moves]))
+
 ;; -----------------------------------------------------------------------------
 ;; VIEWS
 
 (defn ResetButton
   []
   [:button.button.is-small.ml-4
-   {:on-click #(rf/dispatch [:board/seed-board "EMPTY"])
+   {:on-click reset-button-handler
     :style {:fontSize "13px"
             :border 0
             :backgroundColor "orange"}} "Reset"])
