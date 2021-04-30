@@ -3,6 +3,7 @@
 
 /out/
 /resources/public/js/compiled/
+/resources/00_build
 /target/
 /*-init.clj
 /*.log

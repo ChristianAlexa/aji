@@ -20,6 +20,7 @@
   {:target     :browser
    :output-dir "resources/public/js/compiled"
    :asset-path "/js/compiled"
+   :module-hash-names true
    :modules
    {:app {:init-fn com.github.christianalexa.aji.core/init}}
    :devtools

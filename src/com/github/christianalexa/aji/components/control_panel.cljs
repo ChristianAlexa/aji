@@ -6,24 +6,24 @@
 ;; EVENT HANDLERS
 (rf/reg-event-db
  ::turn-off-puzzle-mode
- (fn [db [_ _]]
+ (fn [db _]
    (assoc db :puzzle-mode? false)))
 
 ;; -----------------------------------------------------------------------------
 ;; SUBSCRIPTIONS
 (rf/reg-sub
  ::dropdown-active?
- (fn [db [_ _]]
+ (fn [db _]
    (:dropdown-active? db)))
 
 (rf/reg-sub
  ::puzzle-description
- (fn [db [_ _]]
+ (fn [db _]
    (:selected-puzzle db)))
 
 (rf/reg-event-db
  ::reset-max-num-moves
- (fn [db [_ _]]
+ (fn [db _]
    (assoc db :max-num-moves nil)))
 
 (defn reset-button-handler
