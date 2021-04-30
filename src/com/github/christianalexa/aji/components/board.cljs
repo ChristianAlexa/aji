@@ -201,7 +201,7 @@
 ;; SUBSCRIPTIONS
 (rf/reg-sub
  ::board-size
- (fn [db [_ _]]
+ (fn [db _]
    (:board-size db)))
 
 (rf/reg-sub
@@ -217,7 +217,7 @@
 
 (rf/reg-sub
  ::curr-turn
- (fn [db [_ _]]
+ (fn [db _]
    (:curr-turn db)))
 
 (rf/reg-sub

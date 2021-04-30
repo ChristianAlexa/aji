@@ -6,12 +6,12 @@
 ;; EVENT HANDLERS
 (rf/reg-event-db
  ::toggle-dropdown-active?
- (fn [db [_ _]]
+ (fn [db _]
    (update db :dropdown-active? not)))
 
 (rf/reg-event-db
  ::turn-on-puzzle-mode
- (fn [db [_ _]]
+ (fn [db _]
    (assoc db :puzzle-mode? true)))
 
 (rf/reg-event-db

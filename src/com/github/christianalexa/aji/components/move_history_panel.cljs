@@ -6,7 +6,7 @@
 ;; SUBSCRIPTIONS
 (rf/reg-sub
  ::move-history
- (fn [db [_ _]]
+ (fn [db _]
    (get-in db [:active-board :move-history])))
 
 ;; -----------------------------------------------------------------------------
