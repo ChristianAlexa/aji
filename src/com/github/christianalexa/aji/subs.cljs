@@ -5,7 +5,7 @@
 
 (rf/reg-sub
  ::name
- (fn [db]
+ (fn [db _]
    (:name db)))
 
 (rf/reg-sub
@@ -22,7 +22,7 @@
 (rf/reg-sub
  :aji/selected-puzzle-description
  :<- [:aji/selected-puzzle-val]
- (fn [selected-puzzle-val [_ _]]
+ (fn [selected-puzzle-val _]
    (:puzzle-description selected-puzzle-val)))
 
 (rf/reg-sub
