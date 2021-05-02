@@ -24,8 +24,8 @@
    :modules
    {:app {:init-fn com.github.christianalexa.aji.core/init}}
    :devtools
-   {:preloads []}
+   {:preloads [day8.re-frame-10x.preload]}
    :dev
    {:compiler-options
     {:closure-defines
-     {}}}}}}
+     {"re_frame.trace.trace_enabled_QMARK_" true}}}}}}

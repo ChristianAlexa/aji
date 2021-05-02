@@ -1,6 +1,6 @@
 # AJI
 
-AJI is a Go Puzzle board.
+AJI is a Go Puzzle board. Play [aji](https://aji-gg.netlify.app/)!
 
 ![example-screenshot](./resources/public/img/game-example.png)
 
