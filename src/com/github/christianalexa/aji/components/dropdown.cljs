@@ -31,11 +31,11 @@
 ;; VIEWS
 (defn DropdownItem
   [idx puzzle-option]
-  (let [pattern-key (:pattern-key puzzle-option)
-        pattern-description (:pattern-description puzzle-option)]
-    [:a.dropdown-item {:key idx
-                       :href "#"
-                       :on-click #(dropdown-item-handler pattern-key)} pattern-description]))
+  [:a.dropdown-item {:key idx
+                     :href "#"
+                     :on-click #(dropdown-item-handler (:pattern-key puzzle-option))}
+   (:pattern-description puzzle-option)])
+
 (defn Dropdown
   [options active? selected-option]
   [:div.dropdown {:class (when active? "is-active")}
