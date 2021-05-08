@@ -32,23 +32,23 @@
 
 ;; expected puzzle-options data shape
 ;;  [{:pattern-key "PUZZLE_PATTERN_1"
-;;    :pattern-description "foo"}
+;;    :pattern-description "Basic - Kill"}
 ;;   {:pattern-key "PUZZLE_PATTERN_2"
-;;    :pattern-description "bar"}]
+;;    :pattern-description "Basic - Escape"}]
 (rf/reg-sub
  :aji/all-puzzle-options
  (fn [_ _]
-   (let [puzzle-pattern-keys (into [] (keys puzzles/patterns))
+   (let [puzzle-pattern-keys (vec (keys puzzles/patterns))
          puzzle-pattern-vals (map (fn [pattern-key]
                                     @(rf/subscribe [:aji/puzzle-key->puzzle-val pattern-key]))
                                   puzzle-pattern-keys)
          puzzle-pattern-descriptions (mapv #(:puzzle-description %) puzzle-pattern-vals)
          puzzle-pattern-options (zipmap puzzle-pattern-keys puzzle-pattern-descriptions)]
 
-     ;; build a list of option-maps and cast to vector
-     (into [] (map (fn [option]
-                     (let [option-map {}]
-                       (-> option-map
-                           (assoc :pattern-key (first option))
-                           (assoc :pattern-description (second option)))))
-                   puzzle-pattern-options)))))
+     ;; build a vector coll of dropdown option maps 
+     (vec (map (fn [option]
+                 (let [option-map {}]
+                   (-> option-map
+                       (assoc :pattern-key (first option))
+                       (assoc :pattern-description (second option)))))
+               puzzle-pattern-options)))))

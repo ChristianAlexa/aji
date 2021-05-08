@@ -56,7 +56,6 @@
 (defn ControlPanel
   "ControlPanel renders panels that allows a player to interact with the active game."
   []
-
   [:div.panel {:id "controlPanel"}
    [:p.panel-heading "Board Controls"]
    [:ul

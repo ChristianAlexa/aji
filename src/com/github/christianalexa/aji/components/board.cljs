@@ -119,25 +119,22 @@
 (defn initial-active-board
   "initial-active-board returns a map with the shape {\"1-A\" {:stone nil :liberties ... \"1-B\" {:stone nil :liberties ...}}}"
   [db puzzle-id]
-  (let [initial-coord-vals-vec (into [] (flatten (initial-intersection-values)))
-        initial-coord-keys-vec (into [] (flatten (create-board 19)))
+  (let [initial-coord-vals-vec (vec (flatten (initial-intersection-values)))
+        initial-coord-keys-vec (vec (flatten (create-board 19)))
         coords-and-vals-map (zipmap initial-coord-keys-vec initial-coord-vals-vec)
         puzzle (get puzzles/patterns puzzle-id)
-        puzzle-pattern (:pattern puzzle)
-        puzzle-color-to-move (:color-to-move puzzle)
-        puzzle-winning-move (:winning-move puzzle)
         puzzle-curr-turn (if (= "EMPTY" puzzle-id)
                            "TURN_BLACK"
-                           puzzle-color-to-move)
+                           (:color-to-move puzzle))
         active-board (if (= "EMPTY" puzzle-id)
                        coords-and-vals-map
-                       (merge coords-and-vals-map puzzle-pattern))]
+                       (merge coords-and-vals-map (:pattern puzzle)))]
     (-> db
         (assoc-in [:active-board :curr-move-num] 0)
         (assoc-in [:active-board :move-history] {})
         (assoc-in [:active-board :white-captured-stones] 0)
         (assoc-in [:active-board :black-captured-stones] 0)
-        (assoc :winning-move puzzle-winning-move)
+        (assoc :winning-move (:winning-move puzzle))
         (assoc :selected-puzzle puzzle-id)
         (assoc :curr-turn puzzle-curr-turn)
         (assoc :active-board active-board))))
